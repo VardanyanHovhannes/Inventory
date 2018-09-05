@@ -182,20 +182,19 @@ void MainWindow::loadGame()
     setAcceptDrops(true);
 
     m_db = QSqlDatabase::addDatabase("QSQLITE");
-    m_db.setDatabaseName("imagesDB");
-    m_db = QSqlDatabase::database();
+    m_db.setDatabaseName("/home/myusername/Folder1/imagesDB");
 
     if(!m_db.open())
         qDebug() << m_db.lastError();
 
     QModelIndex index;
 
-    QSqlQuery q(m_db);    
+    QSqlQuery q(m_db);
     QMap<QModelIndex, QVector<int>> tableContent;
 
     q.exec("SELECT row, column, imageIndex FROM imagesTable");
     while (q.next())
-    {               
+    {
         index = m_model->index(q.value(0).toInt(), q.value(1).toInt(), QModelIndex());
 
         if(tableContent.find(index) == tableContent.end())
@@ -209,6 +208,12 @@ void MainWindow::loadGame()
             tableContent[index].push_back(q.value(2).toInt());
         }
     }
+    QString connection;
+    connection = m_db.connectionName();
+    m_db.close();
+    m_db = QSqlDatabase();
+    m_db.removeDatabase(connection);
+
     m_model->setTableContent(tableContent);
 }
 QSqlError MainWindow::initDb()
@@ -217,7 +222,7 @@ QSqlError MainWindow::initDb()
        qDebug() << "Unable to load databaseThis demo needs the SQLITE driver";
 
     m_db = QSqlDatabase::addDatabase("QSQLITE");
-    m_db.setDatabaseName("imagesDB");
+    m_db.setDatabaseName("/home/myusername/Folder1/imagesDB");
 
     if (!m_db.open())
         return m_db.lastError();
@@ -250,6 +255,12 @@ QSqlError MainWindow::initDb()
             addImage(q, i.key().row(), i.key().column(), *j );
         }
     }
+    QString connection;
+    connection = m_db.connectionName();
+    m_db.close();
+    m_db = QSqlDatabase();
+    m_db.removeDatabase(connection);
+
     return QSqlError();
 }
 
